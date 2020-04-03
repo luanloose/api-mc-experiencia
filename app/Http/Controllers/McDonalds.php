@@ -7,11 +7,11 @@ use App\API\ApiError as Erro;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverSelect as Select;
 use Illuminate\Http\Request;
-use App\API\Retorno;
 use Facebook\WebDriver\WebDriverExpectedCondition as Condition;
 
 class McDonalds extends Browser
 {
+    private $code;
     const MC = 'https://mcexperiencia.com.br/';
 
     public function __construct()
@@ -31,26 +31,16 @@ class McDonalds extends Browser
         try {
             $this->driver->get(self::MC);
 
-            $this->driver->switchTo()->frame("iframelanding");
-            //for="aceptotyc"
-            //movenextbtn
+            $this->driver->switchTo()->frame(0);
 
-            // $this->driver->findElement(
-            //     By::cssSelector('label.he_leido')
-            // )->click();
+            $this->driver->findElement(By::cssSelector('label.custom-check.checkbox'))
+            ->click();
 
-            $element = $this->driver->findElement(By::cssSelector('label.custom-check.checkbox'));
-            $this->driver->wait(10, 1000)->until(
-                Condition::visibilityOf($element)
-            );
-            $element->click();
 
             $this->driver->findElement(By::id('movenextbtn'))
             ->click();
 
-            sleep(4);
-
-            $this->preencher(
+            $this->fillNote(
                 $request->cnpj,
                 $request->date['day'],
                 $request->date['month'],
@@ -59,22 +49,23 @@ class McDonalds extends Browser
                 $request->time['minute'],
                 $request->nf
             );
+            
+            $this->answerQuestions($request->text);
 
-            $this->enviarForm();
+            $this->getCode(
+                $request->email,
+                $request->name,
+                $request->age
+            );
 
             $this->retorno();
 
             $this->kill();
 
-            return response()->json(Retorno::retorno(
-                $this->senha,
-                $this->status,
-                $this->situação,
-                $this->numeroGuia,
-                $this->dataValSenha,
-                $this->nomePaciente,
-                $this->procedimentos
-            ), 200);
+            return response()->json([
+                "msg" => "Cupom enviado para o email"
+            ], 200);
+
         } catch (\Exception $e) {
             $erro = new Erro;
             return $erro->getErroUnimedRio($this->driver, $e);
@@ -82,113 +73,145 @@ class McDonalds extends Browser
     }
 
 
-    private function preencher($cnpj, $day, $mon, $year, $hour, $min, $nf)
+    private function fillNote($cnpj, $day, $mon, $year, $hour, $min, $nf)
     {
-
         $element = $this->driver->findElement(By::id('cnpj'));
-       
-        $element->isDisplayed()->sendKeys($cnpj);
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
+        );
+        $element->sendKeys($cnpj);
+        
+        sleep(2);
 
         $this->driver->findElement(By::id('movenextbtn'))
                 ->click();
-        // input-day
+        
         $select = new Select($this->driver->findElement(By::cssSelector('select.input-day')));
         $select->selectByVisibleText($day);
 
-        
         $select = new Select($this->driver->findElement(By::cssSelector('select.input-month')));
         $select->selectByVisibleText($mon);
         
         $select = new Select($this->driver->findElement(By::cssSelector('select.input-year')));
         $select->selectByVisibleText($year);
 
-        
         $select = new Select($this->driver->findElement(By::cssSelector('select.input-hours')));
         $select->selectByVisibleText($hour);
         
         $select = new Select($this->driver->findElement(By::cssSelector('select.input-minutes')));
         $select->selectByVisibleText($min);
         
-        $this->driver->findElement(By::cssSelector('input[pattern="[0-9]*"'))
+        $this->driver->findElement(By::cssSelector('#NTKT > .input-text'))
                 ->sendKeys($nf);
 
         $this->driver->findElement(By::id('movenextbtn'))
                 ->click();
     }
 
-    
-    private function enviarForm()
+    public function answerQuestions($text)
     {
-        $enviarForm = $this->driver->findElement(
-            By::cssSelector('input.enviar')
+
+        $element = $this->driver->findElement(By::id('label-answer658597X8857X36524Y'));
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
         );
-        $enviarForm->click();
+        $element->click();
 
-        $this->driver->findElement(By::id('spanMsg'))->isDisplayed();
+        $this->driver->findElement(By::id('label-answer658597X8846X365201'))
+                ->click();
 
-        $confirma = $this->driver->findElements(
-            By::cssSelector('button.ui-state-default.ui-corner-all')
+        $this->driver->findElement(By::id('label-answer658597X8846X365192'))
+                ->click();
+
+        $this->driver->findElement(By::id('movenextbtn'))
+                ->click();
+
+        $element = $this->driver->findElement(By::cssSelector('#qb\.answer658597X8847X365211-4 span'));
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
         );
+        $element->click();
 
-        foreach ($confirma as $elemento) {
-            $texto = $elemento->getText();
+        $this->driver->findElement(By::id('answer658597X8859X36540'))
+                ->sendKeys($text);
+        sleep(1);
 
-            if ($texto == 'Confirma') {
-                $elemento->click();
-                break;
-            }
-        }
+        $this->driver->findElement(By::id('movenextbtn'))
+            ->click();
+        
+        $element = $this->driver->findElement(By::cssSelector('#qb\.answer658597X8848X365224-4 > .answerOptionButton'));
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
+        );
+        $element->click();
+        
+        $element = $this->driver->findElement(By::cssSelector('#qb\.answer658597X8848X365222-1 > .answerOptionButton.answerOptionButton-border'));
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
+        );
+        $element->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8849X365423-4 > .answerOptionButton'))
+            ->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8879X365721-4 > .answerOptionButton'))
+            ->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8852X365252-4 > .answerOptionButton'))
+            ->click();
+        
+        $element = $this->driver->findElement(By::cssSelector('#qb\.answer658597X8852X365255-4 > .answerOptionButton'));
+        $this->driver->wait(10, 1000)->until(
+            Condition::visibilityOf($element)
+        );
+        $element->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8861X365441-4 > .answerOptionButton'))
+            ->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8878X365711-4 > .answerOptionButton'))
+            ->click();
+
+        $this->driver->findElement(By::cssSelector('#qb\.answer658597X8853X36526SQ001-8 > .answerOptionButton'))
+            ->click();
+
+        $this->driver->findElement(By::id('label-answer658597X8863X36545N'))
+                ->click();
+
+        $this->driver->findElement(By::id('answer658597X8854X36527'))
+                ->click();
+
+        $this->driver->findElement(By::id('answer658597X8854X36527'))
+                ->click();
+    }
+
+    private function getCode($email, $name, $age)
+    {
+        $this->driver->findElement(By::id('answer658597X8854X36527'))
+                ->sendKeys($email);
+
+        $this->driver->findElement(By::id('answer658597X8854X36528'))
+                ->sendKeys($name);
+
+        $this->driver->findElement(By::id('label-answer658597X8854X36529M'))
+                ->click();
+
+        $this->driver->findElement(By::id('answer658597X8854X36530'))
+                ->sendKeys($age);
+
+        $this->driver->findElement(By::id('movenextbtn'))
+                ->click();
     }
 
     private function retorno()
     {
-        $this->situação = $this->driver->findElement(
-            By::cssSelector('label:nth-child(2)')
-        )->getText();
+        $this->driver->findElement(By::id('movenextbtn'))
+                ->click();
+        $this->driver->findElement(By::cssSelector('button.send'))
+                ->click();
+        $this->driver->switchTo()->alert()->accept();
 
-        if ($this->situação == "Aprovada") {
-            $this->status = "true";
-        } else {
-            $this->status = "false";
-        }
-
-        $guia = $this->driver->findElements(
-            By::cssSelector('td.titulo')
-        );
-
-        $this->numeroGuia = $guia[2]->getText();
-
-        $this->nomePaciente = $this->driver->findElement(
-            By::cssSelector('td.conteudo[style*="width: 92.50mm; height: 6.35mm;"')
-        )->getText();
-
-        $this->dataValSenha = $this->driver->findElement(
-            By::cssSelector('td.conteudo[style*="width: 47.50mm; height: 6.35mm;"')
-        )->getText();
-
-        $procedimentos = $this->driver->findElements(
-            By::cssSelector('td.conteudo_min')
-        );
-
-        $cont = (count($procedimentos) - 1) / 7;
-
-        $l = 0; //numero para encontrar os elementos dinamicamente
-        $this->procedimentos = [];
-
-        for ($i = 1; $i <= $cont; $i++) {
-            array_push($this->procedimentos, [
-                "tuss" => $procedimentos[1 + $l]->getText(),
-                "desc" => $procedimentos[2 + $l]->getText(),
-                "amount" => $procedimentos[3 + $l]->getText(),
-                "authorized_amount" => $procedimentos[4 + $l]->getText()
-            ]);
-
-            $l += 7;
-        }
-
-        $this->senha = $this->driver->findElement(
-            By::cssSelector('td[style*="width: 25.40mm; height: 6.35mm;"')
-        )->getText();
+        sleep(2);
     }
 
     private function kill()

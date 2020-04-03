@@ -18,7 +18,7 @@ class Browser extends DuskTestCase
      */
     public function browser()
     {   
-        if (config('app.env') === 'producaoo') {
+        if (config('app.env') === 'producao') {
             
             //silent mode
             $options = (new ChromeOptions)->addArguments([
