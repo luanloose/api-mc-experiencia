@@ -4,14 +4,12 @@ namespace App\API;
 
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Tests\DuskTestCase;
 
-class Browser extends DuskTestCase
+class Browser
 {
     /**
      * @method  browser -> Método para instanciar o chromeDriver
-     * @see     Tests\DuskTestCase
-     * @return  response -> driver com configurações passadas via parametro
+     * @return \Facebook\WebDriver\Remote\RemoteWebDriver
      */
     public function browser()
     {
@@ -26,7 +24,8 @@ class Browser extends DuskTestCase
                 ['args' => [
                     '--disable-gpu',
                     '--headless',
-                    '--no-sandbox'
+                    '--no-sandbox',
+                    'window-size=1024,768'
                 ]]
             );
 
@@ -38,7 +37,10 @@ class Browser extends DuskTestCase
             $desiredCapabilities = DesiredCapabilities::chrome();
             $desiredCapabilities->setCapability(
                 'goog:chromeOptions',
-                ['args' => ['no-first-run']]
+                ['args' => [
+                    'no-first-run',
+                    'window-size=1024,768'
+                ]]
             );
 
             return RemoteWebDriver::create($host, $desiredCapabilities);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\API\Browser;
 use App\API\ApiError as Erro;
+use App\API\Validar;
 use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverSelect as Select;
 use Facebook\WebDriver\WebDriverDimension as Size;
@@ -31,6 +32,25 @@ class McDonalds extends Browser
     public function cupom(Request $request)
     {
         try {
+            $rules = [
+                'covenant.credentials.user' => 'required',
+                'covenant.credentials.password' => 'required',
+                'patient.card_number' => 'required',
+                'patient.newborn' => 'required',
+                'medic_requester.name' => 'required',
+                'medic_requester.type_council' => 'required',
+                'medic_requester.number_council' => 'required',
+                'medic_requester.region' => 'required',
+                'medic_requester.cbo' => 'required',
+                'procedures' => 'required'
+            ];
+
+            $errors = Validar::testar($request, $rules, $this->driver);
+
+            if ($errors) {
+                return response()->json(Erro::errorMessage($errors, 400), 400);
+            }
+
             $this->driver->get(self::MC);
 
             $this->driver->switchTo()->frame(0);
@@ -69,7 +89,7 @@ class McDonalds extends Browser
             ], 200);
         } catch (\Exception $e) {
             $erro = new Erro;
-            return $erro->getErroUnimedRio($this->driver, $e);
+            return $erro->getError($this->driver, $e);
         }
     }
 
