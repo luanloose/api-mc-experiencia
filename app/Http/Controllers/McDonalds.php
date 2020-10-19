@@ -57,11 +57,6 @@ class McDonalds extends Browser
 
             return view('cupom', compact(['src']));
         } catch (\Exception $e) {
-            return [
-                'error' => $e->getMessage(),
-                'extra' => "",
-                'id' => ""
-            ];
             $error = new Errors($this->driver, $e, $request->all());
             return $error->getError();
         }
