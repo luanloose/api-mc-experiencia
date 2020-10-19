@@ -8,11 +8,9 @@ use Facebook\WebDriver\WebDriverBy as By;
 use Facebook\WebDriver\WebDriverSelect as Select;
 use Illuminate\Http\Request;
 use Facebook\WebDriver\WebDriverExpectedCondition as Condition;
-use Intervention\Image\Facades\Image;
 
 class McDonalds extends Browser
 {
-    private $code;
     private $driver;
     const MC = 'https://mcexperiencia.com.br/';
 
