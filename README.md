@@ -1,4 +1,4 @@
-## About Laravel
+## Mc Donals Mc Flurry Cupom
 
 Project I did for the CS50 course
 
