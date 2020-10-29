@@ -32,11 +32,9 @@ class McDonalds
 
             $this->driver->switchTo()->frame(0);
 
-            $this->driver->findElement(By::cssSelector('label.custom-check.checkbox'))
-                ->click();
+            $this->driver->findElement(By::cssSelector('label.custom-check.checkbox'))->click();
 
-            $this->driver->findElement(By::id('movenextbtn'))
-                ->click();
+            $this->driver->findElement(By::id('movenextbtn'))->click();
 
             $this->fillNote(
                 $request->cnpj,
@@ -77,8 +75,7 @@ class McDonalds
 
         sleep(2);
 
-        $this->driver->findElement(By::id('movenextbtn'))
-            ->click();
+        $this->driver->findElement(By::id('movenextbtn'))->click();
 
         $date = explode("-", $date);
 
@@ -123,7 +120,6 @@ class McDonalds
         sleep(1);
 
         $this->driver->findElement(By::id('movenextbtn'))->click();
-
 
         $this->waitAndClickSelector([
             '#question45953 div div ul li div:nth-child(4)',
