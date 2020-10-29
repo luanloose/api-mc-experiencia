@@ -9,8 +9,10 @@ use Facebook\WebDriver\WebDriverSelect as Select;
 use Illuminate\Http\Request;
 use Facebook\WebDriver\WebDriverExpectedCondition as Condition;
 
-class McDonalds extends Browser
+class McDonalds
 {
+    use Browser;
+
     private $driver;
     const MC = 'https://mcexperiencia.com.br/';
 

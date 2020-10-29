@@ -5,7 +5,7 @@ namespace App\API;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 
-class Browser
+trait Browser
 {
     /**
      * @method  browser -> Método para instanciar o chromeDriver
